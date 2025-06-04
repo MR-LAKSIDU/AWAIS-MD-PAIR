@@ -1,90 +1,1088 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Um4r Session</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      background-image: url("https://user-images.githubusercontent.com/6901805/58038897-167f0280-7ae6-11e9-94eb-88e880a25f0f.gif"); /* Set the background image */
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: cover;
-    }
-    
-    .btn {
-      --color: rgb(238,130,238);
-      --color2: #0E0E0E;
-      width: 200px;
-      padding: 0.8em 1.75em;
-      background-color: transparent;
-      border-radius: 6px;
-      border: .3px solid var(--color);
-      transition: .5s;
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-      z-index: 1;
-      font-weight: 300;
-      font-size: 17px;
-      font-family: 'Roboto', 'Segoe UI', sans-serif;
-      text-transform: uppercase;
-      color: var(--color);
-      margin-bottom: 24px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LAKIYA MD: A futuristic multi-device WhatsApp bot for seamless automation.">
+    <meta name="keywords" content="WhatsApp bot, LAKIYA MD, automation, MR LAKSIDU">
+    <title>LAKIYA MD WhatsApp Bot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+        :root {
+            --primary: #000000;
+            --secondary: #FFD700;
+            --glass: rgba(255, 255, 255, 0.05);
+            --bg-color: #000000;
+            --text-color: #FFFFFF;
+            --overlay: rgba(0, 0, 0, 0.7);
+            --success-glow: #00FF88;
+        }
 
-    .btn::after, .btn::before {
-      content: '';
-      display: block;
-      height: 100%;
-      width: 100%;
-      transform: skew(90deg) translate(-50%, -50%);
-      position: absolute;
-      inset: 50%;
-      left: 25%;
-      z-index: -1;
-      transition: .5s ease-out;
-      background-color: var(--color);
-    }
+        [data-theme="light"] {
+            --primary: #1F2937;
+            --secondary: #FFB700;
+            --glass: rgba(0, 0, 0, 0.05);
+            --bg-color: linear-gradient(135deg, #E0E7FF, #FCE7F3);
+            --text-color: #1F2937;
+            --overlay: rgba(255, 255, 255, 0.7);
+        }
 
-    .btn::before {
-      top: -50%;
-      left: -25%;
-      transform: skew(90deg) rotate(180deg) translate(-50%, -50%);
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
 
-    .btn:hover::before {
-      transform: skew(45deg) rotate(180deg) translate(-50%, -50%);
-    }
+        html {
+            scroll-behavior: smooth;
+        }
 
-    .btn:hover::after {
-      transform: skew(45deg) translate(-50%, -50%);
-    }
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            position: relative;
+            transition: background 0.8s ease, color 0.4s ease;
+        }
 
-    .btn:hover {
-      color: var(--color2);
-    }
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
 
-    .btn:active {
-      filter: brightness(.7);
-      transform: scale(.98);
-    }
-  </style>
+        #loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--secondary);
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        #loader p {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--secondary);
+        }
+
+        #neon-icon {
+            width: 60px;
+            height: 60px;
+            opacity: 0;
+            filter: drop-shadow(0 0 10px var(--secondary));
+        }
+
+        canvas#waveCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.3;
+        }
+
+        nav {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--secondary);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--secondary);
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .menu-btn, .sound-btn {
+            font-size: 1.2rem;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .menu-btn:hover, .sound-btn:hover {
+            color: var(--secondary);
+            transform: scale(1.1);
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: -350px;
+            width: 350px;
+            height: 100%;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            transition: left 0.4s ease;
+            z-index: 2000;
+            border-right: 2px solid var(--secondary);
+        }
+
+        .side-menu.active {
+            left: 0;
+        }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .menu-header h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--secondary);
+        }
+
+        .close-btn {
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .menu-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 1rem;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .menu-links a:hover {
+            color: var(--secondary);
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateX(10px);
+            box-shadow: 0 0 10px var(--secondary);
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,215,0,0.2), transparent);
+            z-index: -1;
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            display: inline-block;
+            min-height: 2.5rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards 5s;
+        }
+
+        .connect-btn {
+            padding: 12px 30px;
+            background: var(--secondary);
+            color: var(--primary);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px var(--secondary);
+            z-index: 10;
+        }
+
+        .connect-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px var(--secondary);
+        }
+
+        .connect-section {
+            padding: 3rem 5%;
+            background: var(--glass);
+            text-align: center;
+        }
+
+        .connect-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--secondary);
+            margin-bottom: 2rem;
+        }
+
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .features {
+            padding: 3rem 5%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            background: var(--glass);
+        }
+
+        .feature-box {
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--secondary);
+        }
+
+        .feature-box i {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-box h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .owner-section {
+            padding: 3rem 5%;
+            text-align: center;
+            background: var(--primary);
+        }
+
+        .owner-card {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--glass);
+            border: 2px solid var(--secondary);
+            border-radius: 15px;
+            box-shadow: 0 0 30px var(--secondary);
+            animation: pulse 2s infinite;
+        }
+
+        .owner-card h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .owner-card p {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .owner-card a {
+            padding: 12px 30px;
+            background: var(--secondary);
+            color: var(--primary);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .owner-card a:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--secondary);
+        }
+
+        .workflow-section, .markdown-section {
+            padding: 3rem 5%;
+            text-align: center;
+            background: var(--glass);
+        }
+
+        .workflow-section h2, .markdown-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .workflow-box, .markdown-box {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--glass);
+            border: 1px solid var(--secondary);
+            border-radius: 10px;
+        }
+
+        .workflow-box pre, .markdown-box pre {
+            background: #1F2937;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            box-shadow: 0 0 15px var(--secondary);
+        }
+
+        .workflow-box button, .markdown-box button {
+            padding: 10px 20px;
+            background: var(--secondary);
+            color: var(--primary);
+            border: none;
+            border-radius: 50px;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .workflow-box button:hover, .markdown-box button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--secondary);
+        }
+
+        .workflow-box button.copied, .markdown-box button.copied {
+            background: var(--success-glow);
+            box-shadow: 0 0 15px var(--success-glow);
+        }
+
+        .workflow-box button:disabled, .markdown-box button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: var(--glass);
+            border: 1px solid var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle i {
+            font-size: 1rem;
+            color: var(--secondary);
+        }
+
+        footer {
+            padding: 1rem;
+            text-align: center;
+            background: var(--glass);
+            border-top: 1px solid var(--secondary);
+            font-family: 'Orbitron', sans-serif;
+            color: var(--secondary);
+            font-size: 1rem;
+        }
+
+        .messages {
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .message {
+            background: var(--glass);
+            padding: 8px 12px;
+            margin: 8px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            border: 1px solid var(--secondary);
+        }
+
+        #follow-ad {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #follow-ad.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .ad-content {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid var(--secondary);
+            box-shadow: 0 0 20px var(--secondary);
+        }
+
+        .ad-content h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .ad-content p {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .ad-content a {
+            padding: 12px 30px;
+            background: var(--secondary);
+            color: var(--primary);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ad-content a:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--secondary);
+        }
+
+        #skip-btn {
+            padding: 10px 20px;
+            background: #555;
+            color: var(--text-color);
+            border: none;
+            border-radius: 50px;
+            font-family: 'Orbitron', sans-serif;
+            cursor: not-allowed;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        #skip-btn.active {
+            background: var(--secondary);
+            cursor: pointer;
+        }
+
+        #skip-btn.active:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--secondary);
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px var(--secondary); }
+            50% { box-shadow: 0 0 20px var(--secondary); }
+            100% { box-shadow: 0 0 10px var(--secondary); }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.2rem;
+                white-space: normal;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .side-menu {
+                width: 100%;
+                left: -100%;
+            }
+
+            .button-container {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div id="loader">
+        <div class="spinner"></div>
+        <p>Loading LAKIYA MD...</p>
+        <svg id="neon-icon" viewBox="0 0 24 24">
+            <path fill="var(--secondary)" d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.5l6.5 3v6l-6.5 3-6.5-3v-6L12 4.5z"/>
+        </svg>
+    </div>
 
-  <button onclick="window.open(`/pair`)" class="btn">Pair</button>
-  <button onclick="window.open(`https://github.com/Awais-star-a11y/AWAIS-MD`)" class="btn">Repo</button>
-  <button onclick="window.open(`https://github.com/Awais-star-a11y/AWAIS-MD-PLUGINS`)" class="btn">Plugins</button>
-  <button onclick="window.open(`https://whatsapp.com/channel/0029VashGieHAdNP11OHXH3P`)" class="btn">Channel</button>
-  <button onclick="window.open(`https://www.instagram.com/um4rxd`)" class="btn">instagram</button>
+    <div id="follow-ad">
+        <div class="ad-content">
+            <h2>Join Our WhatsApp Channel</h2>
+            <p>Stay updated with the latest news and updates for LAKIYA MD Bot!</p>
+            <a href="https://whatsapp.com/channel/0029Vb5uLwF7z4kgGnpfGU3D" target="_blank"><i class="fab fa-whatsapp"></i> Follow Channel</a>
+            <button id="skip-btn" disabled>Skip (<span id="countdown">20</span>s)</button>
+        </div>
+    </div>
 
+    <canvas id="waveCanvas"></canvas>
+    <nav>
+        <div class="logo">LAKIYA MD</div>
+        <div class="nav-controls">
+            <button class="sound-btn" title="Toggle Sound" aria-label="Toggle background audio">
+                <i class="fas fa-volume-up"></i>
+            </button>
+            <button class="menu-btn" aria-label="Open menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="side-menu">
+        <div class="menu-header">
+            <h3>Menu</h3>
+            <button class="close-btn" aria-label="Close menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="menu-links">
+            <a href="#home"><i class="fas fa-home"></i> Home</a>
+            <a href="#features"><i class="fas fa-star"></i> Features</a>
+            <a href="#connect"><i class="fas fa-link"></i> Connect & Deploy</a>
+            <a href="#workflow"><i class="fas fa-code"></i> Workflow</a>
+            <a href="#markdown"><i class="fas fa-file"></i> Markdown</a>
+            <a href="#owner"><i class="fas fa-user"></i> Owner</a>
+        </div>
+    </div>
+
+    <audio id="background-audio" autoplay loop>
+        <source src="https://files.catbox.moe/4y1uxv.mp3" type="audio/mp3">
+    </audio>
+
+    <section class="hero" id="home">
+        <h1 id="typing-text"></h1>
+        <p>A futuristic, multi-device WhatsApp bot crafted by MR LAKSIDU for seamless automation.</p>
+        <div class="messages" id="messages"></div>
+        <div class="button-container">
+            <a href="/qr" class="connect-btn"><i class="fab fa-whatsapp"></i> Connect Now</a>
+            <a href="" class="connect-btn"><i class="fas fa-code"></i> API SITE</a>
+            <a href="" class="connect-btn"><i class="fas fa-user"></i> OWNER</a>
+            <a href="" class="connect-btn"><i class="fas fa-rocket"></i> BOT DEPLOY</a>
+        </div>
+    </section>
+
+    <section class="connect-section" id="connect">
+        <h2>Connect & Deploy</h2>
+        <div class="button-container">
+            <a href="https://www.mediafire.com/file/xyz/lakiya-md.zip/file" class="connect-btn"><i class="fas fa-download"></i> Download ZIP</a>
+            <a href="/pair" class="connect-btn"><i class="fab fa-whatsapp"></i> Pair Code</a>
+            <a href="/qr" class="connect-btn"><i class="fab fa-whatsapp"></i> QR Code</a>
+            <a href="https://github.com/mr-lakiya/lakiya-md" class="connect-btn"><i class="fab fa-github"></i> Repository</a>
+            <a href="https://dashboard.heroku.com/new-app?template=https://github.com/mr-lakiya/lakiya-md" class="connect-btn"><i class="fas fa-power-off"></i> Deploy to Heroku</a>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="feature-box">
+            <i class="fas fa-rocket"></i>
+            <h3>Fast Deployment</h3>
+            <p>Launch LAKIYA MD instantly with one-click deployment.</p>
+        </div>
+        <div class="feature-box">
+            <i class="fas fa-robot"></i>
+            <h3>Smart Bot</h3>
+            <p>Intuitive and powerful WhatsApp automation.</p>
+        </div>
+        <div class="feature-box">
+            <i class="fas fa-shield-alt"></i>
+            <h3>Reliable</h3>
+            <p>Optimized for speed and stability.</p>
+        </div>
+    </section>
+
+    <section class="owner-section" id="owner">
+        <div class="owner-card">
+            <h2>MR LAKSIDU</h2>
+            <p>Contact the creator of LAKIYA MD for support and inquiries.</p>
+            <a href="https://wa.me/94760698006">Contact MR LAKSIDU</a>
+        </div>
+    </section>
+
+    <section class="workflow-section" id="workflow">
+        <h2>Node.js CI Workflow</h2>
+        <div class="workflow-box">
+            <p>Automate LAKIYA MD deployment with this GitHub Actions workflow.</p>
+            <pre><code class="language-yaml">name: Node.js CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Start application
+      run: npm start
+            </code></pre>
+            <button id="copy-workflow-btn">Copy Code</button>
+        </div>
+    </section>
+
+    <section class="markdown-section" id="markdown">
+        <h2>Markdown Documentation</h2>
+        <div class="markdown-box">
+            <p>LAKIYA MD documentation in Markdown format.</p>
+            <pre><code class="language-markdown"># LAKIYA MD Bot
+A futuristic WhatsApp bot for automation.
+
+## Features
+- Fast deployment
+- Smart automation
+- Reliable performance
+            </code></pre>
+            <button id="copy-markdown-btn">Copy Code</button>
+        </div>
+    </section>
+
+    <footer>
+        𝛲𝛩𝑊𝛯𝑅𝐷 𝐵𝑌 𝐿𝛥𝛫𝛪𝑌𝛥 𝛭𝐷
+    </footer>
+
+    <div class="theme-toggle" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <script>
+        function copyWorkflowCode() {
+            const code = document.querySelector('#workflow pre code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const button = document.getElementById('copy-workflow-btn');
+                button.innerHTML = 'Copied!';
+                button.classList.add('copied');
+                button.disabled = true;
+                setTimeout(() => {
+                    button.innerHTML = 'Copy Code';
+                    button.classList.remove('copied');
+                    button.disabled = false;
+                }, 2000);
+            }).catch(() => {
+                alert('Failed to copy code. Please select manually.');
+            });
+        }
+
+        function copyMarkdownCode() {
+            const code = document.querySelector('#markdown pre code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const button = document.getElementById('copy-markdown-btn');
+                button.innerHTML = 'Copied!';
+                button.classList.add('copied');
+                button.disabled = true;
+                setTimeout(() => {
+                    button.innerHTML = 'Copy Code';
+                    button.classList.remove('copied');
+                    button.disabled = false;
+                }, 2000);
+            }).catch(() => {
+                alert('Failed to copy code. Please select manually.');
+            });
+        }
+
+        function typeText() {
+            try {
+                const texts = [
+                    "LAKIYA MD BOT CREATE BY MR LAKSIDU, WEB DEVELOPER, API CREATER, BOT CREATER, AL STUDENT",
+                    "POWERED BY ADVANCED AI TECHNOLOGY",
+                    "SEAMLESS WHATSAPP AUTOMATION"
+                ];
+                const typingElement = document.querySelector('#typing-text');
+                if (!typingElement) {
+                    console.error('Typing element not found!');
+                    return;
+                }
+                let textIndex = 0;
+                let charIndex = 0;
+                let isTyping = true;
+
+                function updateText() {
+                    const currentText = texts[textIndex];
+                    typingElement.style.borderRight = '3px solid var(--secondary)';
+
+                    if (isTyping) {
+                        // Typing phase
+                        if (charIndex <= currentText.length) {
+                            typingElement.textContent = currentText.substring(0, charIndex);
+                            charIndex++;
+                            setTimeout(updateText, 100);
+                        } else {
+                            // Pause after typing
+                            typingElement.style.borderRight = 'none';
+                            setTimeout(() => {
+                                isTyping = false;
+                                charIndex--;
+                                updateText();
+                            }, 1000);
+                        }
+                    } else {
+                        // Erasing phase
+                        if (charIndex >= 0) {
+                            typingElement.textContent = currentText.substring(0, charIndex);
+                            charIndex--;
+                            setTimeout(updateText, 50);
+                        } else {
+                            // Move to next text
+                            isTyping = true;
+                            charIndex = 0;
+                            textIndex = (textIndex + 1) % texts.length;
+                            setTimeout(updateText, 500);
+                        }
+                    }
+                }
+
+                updateText();
+            } catch (error) {
+                // No console log for general errors
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                // Start typing effect
+                typeText();
+
+                // Loader
+                const loader = document.getElementById('loader');
+                const neonIcon = document.getElementById('neon-icon');
+                if (loader && neonIcon) {
+                    gsap.to(neonIcon, {
+                        opacity: 1,
+                        scale: 1.2,
+                        duration: 0.5,
+                        ease: "power2.out",
+                        repeat: 2,
+                        yoyo: true,
+                    });
+                    gsap.to(loader, {
+                        opacity: 0,
+                        duration: 0.5,
+                        delay: 1,
+                        onComplete: () => loader.classList.add('hidden'),
+                    });
+                    setTimeout(() => loader.classList.add('hidden'), 2000);
+                }
+
+                // Follow Ad
+                const followAd = document.getElementById('follow-ad');
+                const skipBtn = document.getElementById('skip-btn');
+                const countdownSpan = document.getElementById('countdown');
+                if (followAd && skipBtn && countdownSpan) {
+                    followAd.classList.add('show');
+                    let countdown = 20;
+                    skipBtn.disabled = true;
+                    const countdownInterval = setInterval(() => {
+                        countdown--;
+                        countdownSpan.textContent = countdown;
+                        if (countdown <= 0) {
+                            clearInterval(countdownInterval);
+                            skipBtn.disabled = false;
+                            skipBtn.classList.add('active');
+                            countdownSpan.textContent = '';
+                            skipBtn.textContent = 'Skip';
+                        }
+                    }, 1000);
+                    skipBtn.addEventListener('click', () => {
+                        if (!skipBtn.disabled) {
+                            followAd.classList.remove('show');
+                            setTimeout(() => {
+                                followAd.style.display = 'none';
+                            }, 500);
+                        }
+                    });
+                }
+
+                // Sound
+                const audio = document.getElementById('background-audio');
+                const soundBtn = document.querySelector('.sound-btn');
+                let isMuted = false;
+                if (soundBtn && audio) {
+                    soundBtn.addEventListener('click', () => {
+                        try {
+                            isMuted = !isMuted;
+                            audio.muted = isMuted;
+                            soundBtn.innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+                        } catch (err) {
+                            console.error('Sound toggle error:', err);
+                        }
+                    });
+                    audio.play().catch(() => {
+                        document.addEventListener('click', () => audio.play(), { once: true });
+                    });
+                } else {
+                    console.warn('Sound button or audio element not found.');
+                }
+
+                // Menu
+                const menuBtn = document.querySelector('.menu-btn');
+                const sideMenu = document.querySelector('.side-menu');
+                const closeBtn = document.querySelector('.close-btn');
+                if (menuBtn && sideMenu && closeBtn) {
+                    menuBtn.addEventListener('click', () => {
+                        try {
+                            sideMenu.classList.add('active');
+                        } catch (err) {
+                            console.error('Menu open error:', err);
+                        }
+                    });
+                    closeBtn.addEventListener('click', () => {
+                        try {
+                            sideMenu.classList.remove('active');
+                        } catch (err) {
+                            console.error('Menu close error:', err);
+                        }
+                    });
+                    document.addEventListener('click', (e) => {
+                        try {
+                            if (!sideMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+                                sideMenu.classList.remove('active');
+                            }
+                        } catch (err) {
+                            console.error('Menu outside click error:', err);
+                        }
+                    });
+                } else {
+                    console.warn('Menu elements not found.');
+                }
+
+                // Theme toggle
+                const themeToggle = document.querySelector('.theme-toggle');
+                let isDark = true;
+                if (themeToggle) {
+                    themeToggle.addEventListener('click', () => {
+                        try {
+                            isDark = !isDark;
+                            document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+                            themeToggle.innerHTML = isDark ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+                            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                        } catch (err) {
+                            console.error('Theme toggle error:', err);
+                        }
+                    });
+                    const savedTheme = localStorage.getItem('theme');
+                    if (savedTheme) {
+                        document.body.setAttribute('data-theme', savedTheme);
+                        isDark = savedTheme === 'dark';
+                        themeToggle.innerHTML = isDark ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+                    }
+                } else {
+                    console.warn('Theme toggle not found.');
+                }
+
+                // Wave Animation
+                const canvas = document.getElementById('waveCanvas');
+                const ctx = canvas?.getContext('2d');
+                if (canvas && ctx) {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+
+                    let time = 0;
+
+                    function drawWave() {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.beginPath();
+
+                        const amplitude = 50;
+                        const frequency = 0.02;
+                        const speed = 0.05;
+
+                        for (let x = 0; x < canvas.width; x++) {
+                            const y = canvas.height / 2 + Math.sin(x * frequency + time) * amplitude;
+                            ctx.lineTo(x, y);
+                        }
+
+                        ctx.strokeStyle = 'rgba(255, 215, 0, 0.8)';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+
+                        ctx.beginPath();
+                        for (let x = 0; x < canvas.width; x++) {
+                            const y = canvas.height / 2 + Math.sin(x * frequency * 1.5 + time) * (amplitude * 0.7);
+                            ctx.lineTo(x, y);
+                        }
+                        ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
+                        ctx.stroke();
+
+                        time += speed;
+                        requestAnimationFrame(drawWave);
+                    }
+
+                    drawWave();
+
+                    window.addEventListener('resize', () => {
+                        canvas.width = window.innerWidth;
+                        canvas.height = window.innerHeight;
+                    });
+                } else {
+                    console.error('Wave canvas or context not found.');
+                }
+
+                // WebSocket connection
+                function connectWebSocket() {
+                    try {
+                        const ws = new WebSocket('wss://' + window.location.host + '/ws');
+                        ws.onmessage = (event) => {
+                            try {
+                                const data = JSON.parse(event.data);
+                                const messagesDiv = document.getElementById('messages');
+                                if (data.message && messagesDiv) {
+                                    const messageDiv = document.createElement('div');
+                                    messageDiv.className = 'message';
+                                    messageDiv.textContent = `From ${data.from}: ${data.message}`;
+                                    messagesDiv.appendChild(messageDiv);
+                                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                                }
+                                if (data.status === 'connected') {
+                                    alert('WhatsApp Bot Connected!');
+                                    document.getElementById('loader')?.classList.add('hidden');
+                                }
+                            } catch (err) {
+                                console.error('WebSocket message error:', err);
+                            }
+                        };
+                        ws.onclose = () => {
+                            console.log('WebSocket disconnected. Reconnecting in 5 seconds...');
+                            setTimeout(connectWebSocket, 5000);
+                        };
+                        ws.onerror = (error) => console.error('WebSocket error:', error);
+                    } catch (err) {
+                        console.error('WebSocket connection error:', err);
+                    }
+                }
+                connectWebSocket();
+
+                // Button Event Listeners
+                const workflowButton = document.getElementById('copy-workflow-btn');
+                const markdownButton = document.getElementById('copy-markdown-btn');
+                if (workflowButton) {
+                    workflowButton.addEventListener('click', copyWorkflowCode);
+                } else {
+                    console.warn('Workflow copy button not found.');
+                }
+                if (markdownButton) {
+                    markdownButton.addEventListener('click', copyMarkdownCode);
+                } else {
+                    console.warn('Markdown copy button not found.');
+                }
+            } catch (err) {
+                console.error('DOMContentLoaded error:', err);
+            }
+        });
+    </script>
 </body>
 </html>
